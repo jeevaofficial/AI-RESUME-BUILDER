@@ -8,7 +8,10 @@ const signToken = (userId) =>
 
 export const register = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const name = req.body.name?.trim();
+    const email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password;
+
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Name, email and password are required' });
     }
@@ -29,13 +32,18 @@ export const register = async (req, res, next) => {
       user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (err) {
+    if (err.code === 11000) {
+      return res.status(400).json({ message: 'Email already registered' });
+    }
     next(err);
   }
 };
 
 export const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password;
+
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
